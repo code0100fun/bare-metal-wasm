@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="module">
+      async function init() {
+        const { instance } = await WebAssembly.instantiateStreaming(
+          fetch("./bare_metal_wasm.wasm")
+        );
+
+        const width = 600;
+        const height = 600;
+
+        const canvas = document.getElementById("demo-canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        // This is broken due to https://github.com/rust-lang/rust/issues/67453
+        // const buffer_address = instance.exports.BUFFER.value;
+        // So we use some unsafe code and just get the address from Rust
+        const buffer_address = await instance.exports.get_buffer_address();
+        const image = new ImageData(
+          new Uint8ClampedArray(
+            instance.exports.memory.buffer,
+            buffer_address,
+            4 * width * height
+          ),
+          width
+        );
+
+        const ctx = canvas.getContext("2d");
+
+        // CHANGES BEGIN HERE
+        const render = () => {
+          instance.exports.go();
+          ctx.putImageData(image, 0, 0);
+          requestAnimationFrame(render);
+        };
+
+        render();
+      }
+
+      init();
+    </script>
+  </head>
+  <body>
+    <canvas id="demo-canvas"></canvas>
+  </body>
+</html>

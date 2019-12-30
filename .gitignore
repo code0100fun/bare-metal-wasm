@@ -1,0 +1,4 @@
+/target
+Cargo.lock
+server/node_modules
+www/bare_metal_wasm.wasm

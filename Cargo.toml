@@ -1,0 +1,12 @@
+[package]
+name = "bare-metal-wasm"
+version = "0.1.0"
+authors = ["Chase McCarthy <chase@code0100fun.com>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dev-dependencies]
+wasm-snip = "*"
+rustfilt = "*"
